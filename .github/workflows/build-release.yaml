@@ -21,7 +21,7 @@ jobs:
       - name: "Checkout app code repo"
         uses: actions/checkout@v2
         with:
-          repository: nexilus18/smilr
+          repository: benc-uk/smilr
 
       - name: "Authenticate to access ACR"
         uses: docker/login-action@master
