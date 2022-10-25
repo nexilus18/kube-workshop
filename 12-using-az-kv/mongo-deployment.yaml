@@ -1,0 +1,53 @@
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: mongodb
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      serviceAccountName: "__change_me__"   # service account name 
+      containers:
+        - name: mongodb-container
+
+          image: mongo:5.0
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 27017
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 500m
+              memory: 300Mi
+
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - db.adminCommand('ping')
+
+          volumeMounts:
+          - name: secrets-store01-inline
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+    
+      volumes:
+        - name: secrets-store01-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-kvname-workload-identity"    # Update to match Secret Provider Class name if needed
